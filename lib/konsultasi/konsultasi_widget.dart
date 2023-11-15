@@ -111,7 +111,7 @@ class _KonsultasiWidgetState extends State<KonsultasiWidget> {
                                       children: [
                                         Align(
                                           alignment:
-                                              const AlignmentDirectional(0.00, -1.00),
+                                              const AlignmentDirectional(0.00, 0.00),
                                           child: Padding(
                                             padding:
                                                 const EdgeInsetsDirectional.fromSTEB(

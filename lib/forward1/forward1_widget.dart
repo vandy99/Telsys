@@ -113,7 +113,7 @@ class _Forward1WidgetState extends State<Forward1Widget> {
                         const EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 0.0),
                     child: Container(
                       width: 360.0,
-                      height: MediaQuery.sizeOf(context).height * 0.68,
+                      height: MediaQuery.sizeOf(context).height * 0.7,
                       decoration: BoxDecoration(
                         color: FlutterFlowTheme.of(context).secondaryBackground,
                         borderRadius: BorderRadius.circular(20.0),

@@ -114,7 +114,7 @@ class _Backward2WidgetState extends State<Backward2Widget> {
                           const EdgeInsetsDirectional.fromSTEB(0.0, 20.0, 0.0, 0.0),
                       child: Container(
                         width: 360.0,
-                        height: MediaQuery.sizeOf(context).height * 0.68,
+                        height: MediaQuery.sizeOf(context).height * 0.7,
                         decoration: BoxDecoration(
                           color:
                               FlutterFlowTheme.of(context).secondaryBackground,

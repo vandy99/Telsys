@@ -53,24 +53,22 @@ Future<List<TelkesRecord>> queryTelkesRecordOnce({
 
 /// Functions to query SuhuRecords (as a Stream and as a Future).
 Future<int> querySuhuRecordCount({
-  DocumentReference? parent,
   Query Function(Query)? queryBuilder,
   int limit = -1,
 }) =>
     queryCollectionCount(
-      SuhuRecord.collection(parent),
+      SuhuRecord.collection,
       queryBuilder: queryBuilder,
       limit: limit,
     );
 
 Stream<List<SuhuRecord>> querySuhuRecord({
-  DocumentReference? parent,
   Query Function(Query)? queryBuilder,
   int limit = -1,
   bool singleRecord = false,
 }) =>
     queryCollection(
-      SuhuRecord.collection(parent),
+      SuhuRecord.collection,
       SuhuRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
@@ -78,13 +76,12 @@ Stream<List<SuhuRecord>> querySuhuRecord({
     );
 
 Future<List<SuhuRecord>> querySuhuRecordOnce({
-  DocumentReference? parent,
   Query Function(Query)? queryBuilder,
   int limit = -1,
   bool singleRecord = false,
 }) =>
     queryCollectionOnce(
-      SuhuRecord.collection(parent),
+      SuhuRecord.collection,
       SuhuRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
+import '/backend/backend.dart';
 
 import '/auth/base_auth_user_provider.dart';
 
@@ -145,7 +146,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: 'Pasien',
           path: '/pasien',
-          builder: (context, params) => const PasienWidget(),
+          asyncParams: {
+            'data': getDoc(['telkes'], TelkesRecord.fromSnapshot),
+          },
+          builder: (context, params) => PasienWidget(
+            data: params.getParam('data', ParamType.Document),
+          ),
         ),
         FFRoute(
           name: 'Forward1',
@@ -176,8 +182,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           name: 'Suhu',
           path: '/suhu',
           builder: (context, params) => SuhuWidget(
-            date: params.getParam(
-                'date', ParamType.DocumentReference, false, ['telkes']),
+            te: params.getParam('te', ParamType.String),
           ),
         ),
         FFRoute(

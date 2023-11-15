@@ -59,6 +59,60 @@ class _DetakWidgetState extends State<DetakWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        floatingActionButton: StreamBuilder<List<TelkesRecord>>(
+          stream: queryTelkesRecord(
+            singleRecord: true,
+          ),
+          builder: (context, snapshot) {
+            // Customize what your widget looks like when it's loading.
+            if (!snapshot.hasData) {
+              return Center(
+                child: SizedBox(
+                  width: 50.0,
+                  height: 50.0,
+                  child: SpinKitChasingDots(
+                    color: FlutterFlowTheme.of(context).primary,
+                    size: 50.0,
+                  ),
+                ),
+              );
+            }
+            List<TelkesRecord> floatingActionButtonTelkesRecordList =
+                snapshot.data!;
+            final floatingActionButtonTelkesRecord =
+                floatingActionButtonTelkesRecordList.isNotEmpty
+                    ? floatingActionButtonTelkesRecordList.first
+                    : null;
+            return FloatingActionButton(
+              onPressed: () async {
+                await floatingActionButtonTelkesRecord!.reference.update({
+                  ...mapToFirestore(
+                    {
+                      'Listdetak': FieldValue.arrayUnion([
+                        getListdetakFirestoreData(
+                          createListdetakStruct(
+                            date: dateTimeFormat('d/M/y', getCurrentTimestamp),
+                            detak: floatingActionButtonTelkesRecord.detak
+                                .toString(),
+                            clearUnsetFields: false,
+                          ),
+                          true,
+                        )
+                      ]),
+                    },
+                  ),
+                });
+              },
+              backgroundColor: FlutterFlowTheme.of(context).primary,
+              elevation: 8.0,
+              child: Icon(
+                Icons.save_rounded,
+                color: FlutterFlowTheme.of(context).info,
+                size: 24.0,
+              ),
+            );
+          },
+        ),
         appBar: AppBar(
           backgroundColor: FlutterFlowTheme.of(context).primary,
           automaticallyImplyLeading: false,
@@ -144,7 +198,26 @@ class _DetakWidgetState extends State<DetakWidget> {
                             lineWidth: 20.0,
                             animation: true,
                             animateFromLastPercent: true,
-                            progressColor: FlutterFlowTheme.of(context).primary,
+                            progressColor: valueOrDefault<Color>(
+                              () {
+                                if (progressBarTelkesRecord
+                                        .statusDetakJantung ==
+                                    'Tinggi') {
+                                  return const Color(0xFFFF0000);
+                                } else if (progressBarTelkesRecord
+                                        .statusDetakJantung ==
+                                    'Normal') {
+                                  return FlutterFlowTheme.of(context).primary;
+                                } else if (progressBarTelkesRecord
+                                        .statusDetakJantung ==
+                                    'Rendah') {
+                                  return FlutterFlowTheme.of(context).warning;
+                                } else {
+                                  return FlutterFlowTheme.of(context).primary;
+                                }
+                              }(),
+                              FlutterFlowTheme.of(context).primary,
+                            ),
                             backgroundColor: const Color(0xFFE5E5E5),
                             center: Text(
                               valueOrDefault<String>(
@@ -170,88 +243,133 @@ class _DetakWidgetState extends State<DetakWidget> {
               ),
               Align(
                 alignment: const AlignmentDirectional(0.00, 0.00),
-                child: Container(
-                  width: 360.0,
-                  height: 50.0,
-                  decoration: BoxDecoration(
-                    color: FlutterFlowTheme.of(context).primary,
-                    boxShadow: const [
-                      BoxShadow(
-                        blurRadius: 4.0,
-                        color: Color(0x33000000),
-                        offset: Offset(0.0, 2.0),
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(10.0),
+                child: StreamBuilder<List<TelkesRecord>>(
+                  stream: queryTelkesRecord(
+                    singleRecord: true,
                   ),
-                  child: Align(
-                    alignment: const AlignmentDirectional(0.00, 0.00),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Align(
-                          alignment: const AlignmentDirectional(0.00, -1.00),
-                          child: Text(
-                            'Status :',
-                            textAlign: TextAlign.center,
-                            style: FlutterFlowTheme.of(context)
-                                .bodyMedium
-                                .override(
-                                  fontFamily: 'Readex Pro',
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                ),
+                  builder: (context, snapshot) {
+                    // Customize what your widget looks like when it's loading.
+                    if (!snapshot.hasData) {
+                      return Center(
+                        child: SizedBox(
+                          width: 50.0,
+                          height: 50.0,
+                          child: SpinKitChasingDots(
+                            color: FlutterFlowTheme.of(context).primary,
+                            size: 50.0,
                           ),
                         ),
-                        StreamBuilder<List<TelkesRecord>>(
-                          stream: queryTelkesRecord(
-                            singleRecord: true,
-                          ),
-                          builder: (context, snapshot) {
-                            // Customize what your widget looks like when it's loading.
-                            if (!snapshot.hasData) {
-                              return Center(
-                                child: SizedBox(
-                                  width: 50.0,
-                                  height: 50.0,
-                                  child: SpinKitChasingDots(
-                                    color: FlutterFlowTheme.of(context).primary,
-                                    size: 50.0,
-                                  ),
-                                ),
-                              );
+                      );
+                    }
+                    List<TelkesRecord> containerTelkesRecordList =
+                        snapshot.data!;
+                    final containerTelkesRecord =
+                        containerTelkesRecordList.isNotEmpty
+                            ? containerTelkesRecordList.first
+                            : null;
+                    return Container(
+                      width: 360.0,
+                      height: 50.0,
+                      decoration: BoxDecoration(
+                        color: valueOrDefault<Color>(
+                          () {
+                            if (containerTelkesRecord?.statusDetakJantung ==
+                                'Tinggi') {
+                              return const Color(0xFFFF0000);
+                            } else if (containerTelkesRecord
+                                    ?.statusDetakJantung ==
+                                'Normal') {
+                              return FlutterFlowTheme.of(context).primary;
+                            } else if (containerTelkesRecord
+                                    ?.statusDetakJantung ==
+                                'Rendah') {
+                              return FlutterFlowTheme.of(context).warning;
+                            } else {
+                              return FlutterFlowTheme.of(context).primary;
                             }
-                            List<TelkesRecord> textTelkesRecordList =
-                                snapshot.data!;
-                            // Return an empty Container when the item does not exist.
-                            if (snapshot.data!.isEmpty) {
-                              return Container();
-                            }
-                            final textTelkesRecord =
-                                textTelkesRecordList.isNotEmpty
-                                    ? textTelkesRecordList.first
-                                    : null;
-                            return Text(
-                              valueOrDefault<String>(
-                                textTelkesRecord?.statusDetakJantung,
-                                'Normal',
+                          }(),
+                          FlutterFlowTheme.of(context).primary,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            blurRadius: 4.0,
+                            color: Color(0x33000000),
+                            offset: Offset(0.0, 2.0),
+                          )
+                        ],
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Align(
+                        alignment: const AlignmentDirectional(0.00, 0.00),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Align(
+                              alignment: const AlignmentDirectional(0.00, -1.00),
+                              child: Text(
+                                'Status :',
+                                textAlign: TextAlign.center,
+                                style: FlutterFlowTheme.of(context)
+                                    .bodyMedium
+                                    .override(
+                                      fontFamily: 'Readex Pro',
+                                      color: Colors.white,
+                                      fontSize: 16.0,
+                                    ),
                               ),
-                              textAlign: TextAlign.center,
-                              style: FlutterFlowTheme.of(context)
-                                  .bodyMedium
-                                  .override(
-                                    fontFamily: 'Readex Pro',
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.w600,
+                            ),
+                            StreamBuilder<List<TelkesRecord>>(
+                              stream: queryTelkesRecord(
+                                singleRecord: true,
+                              ),
+                              builder: (context, snapshot) {
+                                // Customize what your widget looks like when it's loading.
+                                if (!snapshot.hasData) {
+                                  return Center(
+                                    child: SizedBox(
+                                      width: 50.0,
+                                      height: 50.0,
+                                      child: SpinKitChasingDots(
+                                        color: FlutterFlowTheme.of(context)
+                                            .primary,
+                                        size: 50.0,
+                                      ),
+                                    ),
+                                  );
+                                }
+                                List<TelkesRecord> textTelkesRecordList =
+                                    snapshot.data!;
+                                // Return an empty Container when the item does not exist.
+                                if (snapshot.data!.isEmpty) {
+                                  return Container();
+                                }
+                                final textTelkesRecord =
+                                    textTelkesRecordList.isNotEmpty
+                                        ? textTelkesRecordList.first
+                                        : null;
+                                return Text(
+                                  valueOrDefault<String>(
+                                    textTelkesRecord?.statusDetakJantung,
+                                    'Normal',
                                   ),
-                            );
-                          },
+                                  textAlign: TextAlign.center,
+                                  style: FlutterFlowTheme.of(context)
+                                      .bodyMedium
+                                      .override(
+                                        fontFamily: 'Readex Pro',
+                                        color: Colors.white,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
               Align(
@@ -287,9 +405,13 @@ class _DetakWidgetState extends State<DetakWidget> {
                           weekFormat: true,
                           weekStartsMonday: false,
                           rowHeight: 64.0,
-                          onChange: (DateTimeRange? newSelectedDate) {
-                            setState(() =>
-                                _model.calendarSelectedDay = newSelectedDate);
+                          onChange: (DateTimeRange? newSelectedDate) async {
+                            _model.calendarSelectedDay = newSelectedDate;
+                            setState(() {
+                              FFAppState().Waktu = dateTimeFormat(
+                                  'd/M/y', _model.calendarSelectedDay!.start);
+                            });
+                            setState(() {});
                           },
                           titleStyle: FlutterFlowTheme.of(context)
                               .headlineSmall
@@ -311,12 +433,14 @@ class _DetakWidgetState extends State<DetakWidget> {
                           inactiveDateStyle:
                               FlutterFlowTheme.of(context).labelMedium,
                         ),
-                        Flexible(
+                        Expanded(
                           child: Padding(
                             padding: const EdgeInsetsDirectional.fromSTEB(
                                 0.0, 10.0, 0.0, 0.0),
-                            child: StreamBuilder<List<SuhuRecord>>(
-                              stream: querySuhuRecord(),
+                            child: StreamBuilder<List<TelkesRecord>>(
+                              stream: queryTelkesRecord(
+                                singleRecord: true,
+                              ),
                               builder: (context, snapshot) {
                                 // Customize what your widget looks like when it's loading.
                                 if (!snapshot.hasData) {
@@ -332,22 +456,23 @@ class _DetakWidgetState extends State<DetakWidget> {
                                     ),
                                   );
                                 }
-                                List<SuhuRecord> listViewSuhuRecordList =
+                                List<TelkesRecord> listViewTelkesRecordList =
                                     snapshot.data!;
-                                return ListView.builder(
+                                final listViewTelkesRecord =
+                                    listViewTelkesRecordList.isNotEmpty
+                                        ? listViewTelkesRecordList.first
+                                        : null;
+                                return ListView(
                                   padding: EdgeInsets.zero,
                                   shrinkWrap: true,
                                   scrollDirection: Axis.vertical,
-                                  itemCount: listViewSuhuRecordList.length,
-                                  itemBuilder: (context, listViewIndex) {
-                                    final listViewSuhuRecord =
-                                        listViewSuhuRecordList[listViewIndex];
-                                    return Padding(
+                                  children: [
+                                    Padding(
                                       padding: const EdgeInsetsDirectional.fromSTEB(
                                           20.0, 0.0, 20.0, 1.0),
                                       child: Container(
                                         width: 100.0,
-                                        height: 50.0,
+                                        height: 89.0,
                                         decoration: BoxDecoration(
                                           color: FlutterFlowTheme.of(context)
                                               .secondaryBackground,
@@ -361,32 +486,43 @@ class _DetakWidgetState extends State<DetakWidget> {
                                             )
                                           ],
                                         ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Detak Jantung : ',
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium,
-                                            ),
-                                            Text(
-                                              '0',
-                                              style: FlutterFlowTheme.of(
-                                                      context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily: 'Readex Pro',
-                                                    fontWeight: FontWeight.w600,
+                                        child: Builder(
+                                          builder: (context) {
+                                            final listkadar =
+                                                listViewTelkesRecord?.listdetak
+                                                        .where((e) =>
+                                                            e.date ==
+                                                            FFAppState().Waktu)
+                                                        .toList()
+                                                        .map((e) => e.detak)
+                                                        .toList()
+                                                        .toList() ??
+                                                    [];
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              children: List.generate(
+                                                  listkadar.length,
+                                                  (listkadarIndex) {
+                                                final listkadarItem =
+                                                    listkadar[listkadarIndex];
+                                                return Align(
+                                                  alignment:
+                                                      const AlignmentDirectional(
+                                                          -1.00, 0.00),
+                                                  child: Text(
+                                                    'Detak Jantung : $listkadarItem BPM',
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
+                                                        .bodyMedium,
                                                   ),
-                                            ),
-                                          ],
+                                                );
+                                              }).divide(const SizedBox(height: 5.0)),
+                                            );
+                                          },
                                         ),
                                       ),
-                                    );
-                                  },
+                                    ),
+                                  ],
                                 );
                               },
                             ),

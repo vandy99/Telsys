@@ -1,10 +1,12 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'login_model.dart';
 export 'login_model.dart';
@@ -312,48 +314,103 @@ class _LoginWidgetState extends State<LoginWidget> {
                                 Padding(
                                   padding: const EdgeInsetsDirectional.fromSTEB(
                                       0.0, 0.0, 0.0, 16.0),
-                                  child: FFButtonWidget(
-                                    onPressed: () async {
-                                      GoRouter.of(context).prepareAuthEvent();
-
-                                      final user =
-                                          await authManager.signInWithEmail(
-                                        context,
-                                        _model.emailAddressController.text,
-                                        _model.passwordConfirmController.text,
-                                      );
-                                      if (user == null) {
-                                        return;
-                                      }
-
-                                      context.pushNamedAuth(
-                                          'Home', context.mounted);
-                                    },
-                                    text: 'Masuk',
-                                    options: FFButtonOptions(
-                                      width: 370.0,
-                                      height: 44.0,
-                                      padding: const EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 0.0, 0.0, 0.0),
-                                      iconPadding:
-                                          const EdgeInsetsDirectional.fromSTEB(
-                                              0.0, 0.0, 0.0, 0.0),
-                                      color: const Color(0xFF4B39EF),
-                                      textStyle: FlutterFlowTheme.of(context)
-                                          .titleSmall
-                                          .override(
-                                            fontFamily: 'Plus Jakarta Sans',
-                                            color: Colors.white,
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                      elevation: 3.0,
-                                      borderSide: const BorderSide(
-                                        color: Colors.transparent,
-                                        width: 1.0,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12.0),
+                                  child: StreamBuilder<List<TelkesRecord>>(
+                                    stream: queryTelkesRecord(
+                                      singleRecord: true,
                                     ),
+                                    builder: (context, snapshot) {
+                                      // Customize what your widget looks like when it's loading.
+                                      if (!snapshot.hasData) {
+                                        return Center(
+                                          child: SizedBox(
+                                            width: 50.0,
+                                            height: 50.0,
+                                            child: SpinKitChasingDots(
+                                              color:
+                                                  FlutterFlowTheme.of(context)
+                                                      .primary,
+                                              size: 50.0,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      List<TelkesRecord>
+                                          buttonTelkesRecordList =
+                                          snapshot.data!;
+                                      final buttonTelkesRecord =
+                                          buttonTelkesRecordList.isNotEmpty
+                                              ? buttonTelkesRecordList.first
+                                              : null;
+                                      return FFButtonWidget(
+                                        onPressed: () async {
+                                          GoRouter.of(context)
+                                              .prepareAuthEvent();
+
+                                          final user =
+                                              await authManager.signInWithEmail(
+                                            context,
+                                            _model.emailAddressController.text,
+                                            _model
+                                                .passwordConfirmController.text,
+                                          );
+                                          if (user == null) {
+                                            return;
+                                          }
+
+                                          if (() {
+                                            if (buttonTelkesRecord?.mode ==
+                                                'Pasien') {
+                                              return true;
+                                            } else if (buttonTelkesRecord
+                                                    ?.mode ==
+                                                'Dokter') {
+                                              return false;
+                                            } else {
+                                              return false;
+                                            }
+                                          }()) {
+                                            context.pushNamedAuth(
+                                                'Home', context.mounted);
+
+                                            return;
+                                          } else {
+                                            context.pushNamedAuth(
+                                                'Dokter', context.mounted);
+
+                                            return;
+                                          }
+                                        },
+                                        text: 'Masuk',
+                                        options: FFButtonOptions(
+                                          width: 370.0,
+                                          height: 44.0,
+                                          padding:
+                                              const EdgeInsetsDirectional.fromSTEB(
+                                                  0.0, 0.0, 0.0, 0.0),
+                                          iconPadding:
+                                              const EdgeInsetsDirectional.fromSTEB(
+                                                  0.0, 0.0, 0.0, 0.0),
+                                          color: const Color(0xFF4B39EF),
+                                          textStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .titleSmall
+                                                  .override(
+                                                    fontFamily:
+                                                        'Plus Jakarta Sans',
+                                                    color: Colors.white,
+                                                    fontSize: 16.0,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                          elevation: 3.0,
+                                          borderSide: const BorderSide(
+                                            color: Colors.transparent,
+                                            width: 1.0,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
 

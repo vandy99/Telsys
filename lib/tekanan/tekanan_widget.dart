@@ -59,6 +59,62 @@ class _TekananWidgetState extends State<TekananWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        floatingActionButton: StreamBuilder<List<TelkesRecord>>(
+          stream: queryTelkesRecord(
+            singleRecord: true,
+          ),
+          builder: (context, snapshot) {
+            // Customize what your widget looks like when it's loading.
+            if (!snapshot.hasData) {
+              return Center(
+                child: SizedBox(
+                  width: 50.0,
+                  height: 50.0,
+                  child: SpinKitChasingDots(
+                    color: FlutterFlowTheme.of(context).primary,
+                    size: 50.0,
+                  ),
+                ),
+              );
+            }
+            List<TelkesRecord> floatingActionButtonTelkesRecordList =
+                snapshot.data!;
+            final floatingActionButtonTelkesRecord =
+                floatingActionButtonTelkesRecordList.isNotEmpty
+                    ? floatingActionButtonTelkesRecordList.first
+                    : null;
+            return FloatingActionButton(
+              onPressed: () async {
+                await floatingActionButtonTelkesRecord!.reference.update({
+                  ...mapToFirestore(
+                    {
+                      'Listdarah': FieldValue.arrayUnion([
+                        getListdarahFirestoreData(
+                          createListdarahStruct(
+                            date: dateTimeFormat('d/M/y', getCurrentTimestamp),
+                            sistole: floatingActionButtonTelkesRecord.sistole
+                                .toString(),
+                            diastole: floatingActionButtonTelkesRecord.diastole
+                                .toString(),
+                            clearUnsetFields: false,
+                          ),
+                          true,
+                        )
+                      ]),
+                    },
+                  ),
+                });
+              },
+              backgroundColor: FlutterFlowTheme.of(context).primary,
+              elevation: 8.0,
+              child: Icon(
+                Icons.save_rounded,
+                color: FlutterFlowTheme.of(context).info,
+                size: 24.0,
+              ),
+            );
+          },
+        ),
         appBar: AppBar(
           backgroundColor: FlutterFlowTheme.of(context).primary,
           automaticallyImplyLeading: false,
@@ -135,10 +191,6 @@ class _TekananWidgetState extends State<TekananWidget> {
                                   List<TelkesRecord>
                                       progressBarTelkesRecordList =
                                       snapshot.data!;
-                                  // Return an empty Container when the item does not exist.
-                                  if (snapshot.data!.isEmpty) {
-                                    return Container();
-                                  }
                                   final progressBarTelkesRecord =
                                       progressBarTelkesRecordList.isNotEmpty
                                           ? progressBarTelkesRecordList.first
@@ -153,8 +205,29 @@ class _TekananWidgetState extends State<TekananWidget> {
                                     lineWidth: 20.0,
                                     animation: true,
                                     animateFromLastPercent: true,
-                                    progressColor:
-                                        FlutterFlowTheme.of(context).primary,
+                                    progressColor: valueOrDefault<Color>(
+                                      () {
+                                        if (progressBarTelkesRecord
+                                                .statusTensi ==
+                                            'Tinggi') {
+                                          return const Color(0xFFFF0000);
+                                        } else if (progressBarTelkesRecord
+                                                .statusTensi ==
+                                            'Normal') {
+                                          return FlutterFlowTheme.of(context)
+                                              .primary;
+                                        } else if (progressBarTelkesRecord
+                                                .statusTensi ==
+                                            'Rendah') {
+                                          return FlutterFlowTheme.of(context)
+                                              .warning;
+                                        } else {
+                                          return FlutterFlowTheme.of(context)
+                                              .primary;
+                                        }
+                                      }(),
+                                      FlutterFlowTheme.of(context).primary,
+                                    ),
                                     backgroundColor: const Color(0xFFE5E5E5),
                                     center: Text(
                                       valueOrDefault<String>(
@@ -209,10 +282,6 @@ class _TekananWidgetState extends State<TekananWidget> {
                                   List<TelkesRecord>
                                       progressBarTelkesRecordList =
                                       snapshot.data!;
-                                  // Return an empty Container when the item does not exist.
-                                  if (snapshot.data!.isEmpty) {
-                                    return Container();
-                                  }
                                   final progressBarTelkesRecord =
                                       progressBarTelkesRecordList.isNotEmpty
                                           ? progressBarTelkesRecordList.first
@@ -227,8 +296,29 @@ class _TekananWidgetState extends State<TekananWidget> {
                                     lineWidth: 20.0,
                                     animation: true,
                                     animateFromLastPercent: true,
-                                    progressColor:
-                                        FlutterFlowTheme.of(context).primary,
+                                    progressColor: valueOrDefault<Color>(
+                                      () {
+                                        if (progressBarTelkesRecord
+                                                .statusTensi ==
+                                            'Tinggi') {
+                                          return const Color(0xFFFF0000);
+                                        } else if (progressBarTelkesRecord
+                                                .statusTensi ==
+                                            'Normal') {
+                                          return FlutterFlowTheme.of(context)
+                                              .primary;
+                                        } else if (progressBarTelkesRecord
+                                                .statusTensi ==
+                                            'Rendah') {
+                                          return FlutterFlowTheme.of(context)
+                                              .warning;
+                                        } else {
+                                          return FlutterFlowTheme.of(context)
+                                              .primary;
+                                        }
+                                      }(),
+                                      FlutterFlowTheme.of(context).primary,
+                                    ),
                                     backgroundColor: const Color(0xFFE5E5E5),
                                     startAngle: 180.0,
                                   );
@@ -264,10 +354,6 @@ class _TekananWidgetState extends State<TekananWidget> {
                     }
                     List<TelkesRecord> containerTelkesRecordList =
                         snapshot.data!;
-                    // Return an empty Container when the item does not exist.
-                    if (snapshot.data!.isEmpty) {
-                      return Container();
-                    }
                     final containerTelkesRecord =
                         containerTelkesRecordList.isNotEmpty
                             ? containerTelkesRecordList.first
@@ -276,7 +362,23 @@ class _TekananWidgetState extends State<TekananWidget> {
                       width: 360.0,
                       height: 50.0,
                       decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).primary,
+                        color: valueOrDefault<Color>(
+                          () {
+                            if (containerTelkesRecord?.statusTensi ==
+                                'Tinggi') {
+                              return const Color(0xFFFF0000);
+                            } else if (containerTelkesRecord?.statusTensi ==
+                                'Normal') {
+                              return FlutterFlowTheme.of(context).primary;
+                            } else if (containerTelkesRecord?.statusTensi ==
+                                'Rendah') {
+                              return FlutterFlowTheme.of(context).warning;
+                            } else {
+                              return FlutterFlowTheme.of(context).primary;
+                            }
+                          }(),
+                          FlutterFlowTheme.of(context).primary,
+                        ),
                         boxShadow: const [
                           BoxShadow(
                             blurRadius: 4.0,
@@ -327,10 +429,6 @@ class _TekananWidgetState extends State<TekananWidget> {
                                 }
                                 List<TelkesRecord> textTelkesRecordList =
                                     snapshot.data!;
-                                // Return an empty Container when the item does not exist.
-                                if (snapshot.data!.isEmpty) {
-                                  return Container();
-                                }
                                 final textTelkesRecord =
                                     textTelkesRecordList.isNotEmpty
                                         ? textTelkesRecordList.first
@@ -392,9 +490,13 @@ class _TekananWidgetState extends State<TekananWidget> {
                           weekFormat: true,
                           weekStartsMonday: false,
                           rowHeight: 64.0,
-                          onChange: (DateTimeRange? newSelectedDate) {
-                            setState(() =>
-                                _model.calendarSelectedDay = newSelectedDate);
+                          onChange: (DateTimeRange? newSelectedDate) async {
+                            _model.calendarSelectedDay = newSelectedDate;
+                            setState(() {
+                              FFAppState().Waktu = dateTimeFormat(
+                                  'd/M/y', _model.calendarSelectedDay!.start);
+                            });
+                            setState(() {});
                           },
                           titleStyle: FlutterFlowTheme.of(context)
                               .headlineSmall
@@ -420,8 +522,10 @@ class _TekananWidgetState extends State<TekananWidget> {
                           child: Padding(
                             padding: const EdgeInsetsDirectional.fromSTEB(
                                 0.0, 10.0, 0.0, 0.0),
-                            child: StreamBuilder<List<SuhuRecord>>(
-                              stream: querySuhuRecord(),
+                            child: StreamBuilder<List<TelkesRecord>>(
+                              stream: queryTelkesRecord(
+                                singleRecord: true,
+                              ),
                               builder: (context, snapshot) {
                                 // Customize what your widget looks like when it's loading.
                                 if (!snapshot.hasData) {
@@ -437,59 +541,78 @@ class _TekananWidgetState extends State<TekananWidget> {
                                     ),
                                   );
                                 }
-                                List<SuhuRecord> listViewSuhuRecordList =
+                                List<TelkesRecord> listViewTelkesRecordList =
                                     snapshot.data!;
-                                return ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  itemCount: listViewSuhuRecordList.length,
-                                  itemBuilder: (context, listViewIndex) {
-                                    final listViewSuhuRecord =
-                                        listViewSuhuRecordList[listViewIndex];
-                                    return Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(
-                                          20.0, 0.0, 20.0, 1.0),
-                                      child: Container(
-                                        width: 100.0,
-                                        height: 50.0,
-                                        decoration: BoxDecoration(
-                                          color: FlutterFlowTheme.of(context)
-                                              .secondaryBackground,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              blurRadius: 0.0,
+                                final listViewTelkesRecord =
+                                    listViewTelkesRecordList.isNotEmpty
+                                        ? listViewTelkesRecordList.first
+                                        : null;
+                                return Builder(
+                                  builder: (context) {
+                                    final listtekanan = listViewTelkesRecord
+                                            ?.listdarah
+                                            .where((e) =>
+                                                e.date == FFAppState().Waktu)
+                                            .toList()
+                                            .toList() ??
+                                        [];
+                                    return ListView.builder(
+                                      padding: EdgeInsets.zero,
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.vertical,
+                                      itemCount: listtekanan.length,
+                                      itemBuilder: (context, listtekananIndex) {
+                                        final listtekananItem =
+                                            listtekanan[listtekananIndex];
+                                        return Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.fromSTEB(
+                                                  20.0, 0.0, 20.0, 1.0),
+                                          child: Container(
+                                            width: 100.0,
+                                            height: 50.0,
+                                            decoration: BoxDecoration(
                                               color:
                                                   FlutterFlowTheme.of(context)
+                                                      .secondaryBackground,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  blurRadius: 0.0,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
                                                       .alternate,
-                                              offset: const Offset(0.0, 1.0),
-                                            )
-                                          ],
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Tekanan darah : ',
-                                              style:
-                                                  FlutterFlowTheme.of(context)
+                                                  offset: const Offset(0.0, 1.0),
+                                                )
+                                              ],
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Tekanan darah : ',
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
                                                       .bodyMedium,
+                                                ),
+                                                Text(
+                                                  '${listtekananItem.sistole}/${listtekananItem.diastole} mmHg',
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        fontFamily:
+                                                            'Readex Pro',
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                ),
+                                              ],
                                             ),
-                                            Text(
-                                              '/ mmHg',
-                                              style: FlutterFlowTheme.of(
-                                                      context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily: 'Readex Pro',
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                          ),
+                                        );
+                                      },
                                     );
                                   },
                                 );

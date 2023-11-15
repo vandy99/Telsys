@@ -59,6 +59,67 @@ class _KadarWidgetState extends State<KadarWidget> {
       child: Scaffold(
         key: scaffoldKey,
         backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            print('FloatingActionButton pressed ...');
+          },
+          backgroundColor: FlutterFlowTheme.of(context).primary,
+          elevation: 8.0,
+          child: StreamBuilder<List<TelkesRecord>>(
+            stream: queryTelkesRecord(
+              singleRecord: true,
+            ),
+            builder: (context, snapshot) {
+              // Customize what your widget looks like when it's loading.
+              if (!snapshot.hasData) {
+                return Center(
+                  child: SizedBox(
+                    width: 50.0,
+                    height: 50.0,
+                    child: SpinKitChasingDots(
+                      color: FlutterFlowTheme.of(context).primary,
+                      size: 50.0,
+                    ),
+                  ),
+                );
+              }
+              List<TelkesRecord> iconTelkesRecordList = snapshot.data!;
+              final iconTelkesRecord = iconTelkesRecordList.isNotEmpty
+                  ? iconTelkesRecordList.first
+                  : null;
+              return InkWell(
+                splashColor: Colors.transparent,
+                focusColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: () async {
+                  await iconTelkesRecord!.reference.update({
+                    ...mapToFirestore(
+                      {
+                        'Listkadar': FieldValue.arrayUnion([
+                          getListkadarFirestoreData(
+                            createListkadarStruct(
+                              date:
+                                  dateTimeFormat('d/M/y', getCurrentTimestamp),
+                              kadar: iconTelkesRecord.kadar.toString(),
+                              clearUnsetFields: false,
+                            ),
+                            true,
+                          )
+                        ]),
+                      },
+                    ),
+                  });
+                },
+                child: Icon(
+                  Icons.save_rounded,
+                  color: FlutterFlowTheme.of(context).info,
+                  size: 24.0,
+                ),
+              );
+            },
+          ),
+        ),
         appBar: AppBar(
           backgroundColor: FlutterFlowTheme.of(context).primary,
           automaticallyImplyLeading: false,
@@ -137,15 +198,33 @@ class _KadarWidgetState extends State<KadarWidget> {
                                   : null;
                           return CircularPercentIndicator(
                             percent: valueOrDefault<double>(
-                              functions.suhu(
-                                  progressBarTelkesRecord!.kadar.toDouble()),
+                              functions.oksigen(progressBarTelkesRecord!.kadar),
                               0.0,
                             ),
                             radius: 100.0,
                             lineWidth: 20.0,
                             animation: true,
                             animateFromLastPercent: true,
-                            progressColor: FlutterFlowTheme.of(context).primary,
+                            progressColor: valueOrDefault<Color>(
+                              () {
+                                if (progressBarTelkesRecord
+                                        .statusKadarOksigen ==
+                                    'Tinggi') {
+                                  return const Color(0xFFFF0000);
+                                } else if (progressBarTelkesRecord
+                                        .statusKadarOksigen ==
+                                    'Normal') {
+                                  return FlutterFlowTheme.of(context).primary;
+                                } else if (progressBarTelkesRecord
+                                        .statusKadarOksigen ==
+                                    'Rendah') {
+                                  return FlutterFlowTheme.of(context).warning;
+                                } else {
+                                  return FlutterFlowTheme.of(context).primary;
+                                }
+                              }(),
+                              FlutterFlowTheme.of(context).primary,
+                            ),
                             backgroundColor: const Color(0xFFE5E5E5),
                             center: Text(
                               valueOrDefault<String>(
@@ -203,7 +282,25 @@ class _KadarWidgetState extends State<KadarWidget> {
                       width: 360.0,
                       height: 50.0,
                       decoration: BoxDecoration(
-                        color: FlutterFlowTheme.of(context).primary,
+                        color: valueOrDefault<Color>(
+                          () {
+                            if (containerTelkesRecord?.statusKadarOksigen ==
+                                'Tinggi') {
+                              return const Color(0xFFFF0000);
+                            } else if (containerTelkesRecord
+                                    ?.statusKadarOksigen ==
+                                'Normal') {
+                              return FlutterFlowTheme.of(context).primary;
+                            } else if (containerTelkesRecord
+                                    ?.statusKadarOksigen ==
+                                'Rendah') {
+                              return FlutterFlowTheme.of(context).warning;
+                            } else {
+                              return FlutterFlowTheme.of(context).primary;
+                            }
+                          }(),
+                          FlutterFlowTheme.of(context).primary,
+                        ),
                         boxShadow: const [
                           BoxShadow(
                             blurRadius: 4.0,
@@ -319,9 +416,13 @@ class _KadarWidgetState extends State<KadarWidget> {
                           weekFormat: true,
                           weekStartsMonday: false,
                           rowHeight: 64.0,
-                          onChange: (DateTimeRange? newSelectedDate) {
-                            setState(() =>
-                                _model.calendarSelectedDay = newSelectedDate);
+                          onChange: (DateTimeRange? newSelectedDate) async {
+                            _model.calendarSelectedDay = newSelectedDate;
+                            setState(() {
+                              FFAppState().Waktu = dateTimeFormat(
+                                  'd/M/y', _model.calendarSelectedDay!.start);
+                            });
+                            setState(() {});
                           },
                           titleStyle: FlutterFlowTheme.of(context)
                               .headlineSmall
@@ -343,12 +444,14 @@ class _KadarWidgetState extends State<KadarWidget> {
                           inactiveDateStyle:
                               FlutterFlowTheme.of(context).labelMedium,
                         ),
-                        Flexible(
+                        Expanded(
                           child: Padding(
                             padding: const EdgeInsetsDirectional.fromSTEB(
                                 0.0, 10.0, 0.0, 0.0),
-                            child: StreamBuilder<List<SuhuRecord>>(
-                              stream: querySuhuRecord(),
+                            child: StreamBuilder<List<TelkesRecord>>(
+                              stream: queryTelkesRecord(
+                                singleRecord: true,
+                              ),
                               builder: (context, snapshot) {
                                 // Customize what your widget looks like when it's loading.
                                 if (!snapshot.hasData) {
@@ -364,22 +467,23 @@ class _KadarWidgetState extends State<KadarWidget> {
                                     ),
                                   );
                                 }
-                                List<SuhuRecord> listViewSuhuRecordList =
+                                List<TelkesRecord> listViewTelkesRecordList =
                                     snapshot.data!;
-                                return ListView.builder(
+                                final listViewTelkesRecord =
+                                    listViewTelkesRecordList.isNotEmpty
+                                        ? listViewTelkesRecordList.first
+                                        : null;
+                                return ListView(
                                   padding: EdgeInsets.zero,
                                   shrinkWrap: true,
                                   scrollDirection: Axis.vertical,
-                                  itemCount: listViewSuhuRecordList.length,
-                                  itemBuilder: (context, listViewIndex) {
-                                    final listViewSuhuRecord =
-                                        listViewSuhuRecordList[listViewIndex];
-                                    return Padding(
+                                  children: [
+                                    Padding(
                                       padding: const EdgeInsetsDirectional.fromSTEB(
                                           20.0, 0.0, 20.0, 1.0),
                                       child: Container(
                                         width: 100.0,
-                                        height: 50.0,
+                                        height: 89.0,
                                         decoration: BoxDecoration(
                                           color: FlutterFlowTheme.of(context)
                                               .secondaryBackground,
@@ -393,32 +497,47 @@ class _KadarWidgetState extends State<KadarWidget> {
                                             )
                                           ],
                                         ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Kadar Oksigen : ',
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .bodyMedium,
-                                            ),
-                                            Text(
-                                              '0',
-                                              style: FlutterFlowTheme.of(
-                                                      context)
-                                                  .bodyMedium
-                                                  .override(
-                                                    fontFamily: 'Readex Pro',
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                            ),
-                                          ],
+                                        child: Builder(
+                                          builder: (context) {
+                                            final listkadar =
+                                                listViewTelkesRecord?.listkadar
+                                                        .where((e) =>
+                                                            e.date ==
+                                                            FFAppState().Waktu)
+                                                        .toList()
+                                                        .map((e) => e.kadar)
+                                                        .toList()
+                                                        .toList() ??
+                                                    [];
+                                            return SingleChildScrollView(
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.max,
+                                                children: List.generate(
+                                                    listkadar.length,
+                                                    (listkadarIndex) {
+                                                  final listkadarItem =
+                                                      listkadar[listkadarIndex];
+                                                  return Align(
+                                                    alignment:
+                                                        const AlignmentDirectional(
+                                                            -1.00, 0.00),
+                                                    child: Text(
+                                                      'Kadar Oksigen : $listkadarItem %',
+                                                      style:
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .bodyMedium,
+                                                    ),
+                                                  );
+                                                }).divide(
+                                                    const SizedBox(height: 5.0)),
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
-                                    );
-                                  },
+                                    ),
+                                  ],
                                 );
                               },
                             ),

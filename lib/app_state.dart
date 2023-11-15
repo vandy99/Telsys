@@ -21,6 +21,9 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _welcome = prefs.getInt('ff_welcome') ?? _welcome;
     });
+    _safeInit(() {
+      _mode = prefs.getString('ff_mode') ?? _mode;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -151,16 +154,23 @@ class FFAppState extends ChangeNotifier {
     _Backward6 = value;
   }
 
-  DateTime? _waktu;
-  DateTime? get waktu => _waktu;
-  set waktu(DateTime? value) {
-    _waktu = value;
-  }
-
   String _Konsultasi = '';
   String get Konsultasi => _Konsultasi;
   set Konsultasi(String value) {
     _Konsultasi = value;
+  }
+
+  String _Waktu = '';
+  String get Waktu => _Waktu;
+  set Waktu(String value) {
+    _Waktu = value;
+  }
+
+  String _mode = '';
+  String get mode => _mode;
+  set mode(String value) {
+    _mode = value;
+    prefs.setString('ff_mode', value);
   }
 }
 

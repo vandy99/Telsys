@@ -1,9 +1,11 @@
 import '/auth/base_auth_user_provider.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'home_page_model.dart';
 export 'home_page_model.dart';
@@ -30,7 +32,19 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       await Future.delayed(const Duration(milliseconds: 2000));
       if (FFAppState().welcome.toString() == '1') {
         if (loggedIn) {
-          context.pushNamed('Home');
+          if (() {
+            if (FFAppState().mode == '1') {
+              return true;
+            } else if (FFAppState().mode == '2') {
+              return false;
+            } else {
+              return false;
+            }
+          }()) {
+            context.pushNamed('Home');
+          } else {
+            context.pushNamed('Dokter');
+          }
 
           return;
         } else {
@@ -68,28 +82,55 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
     context.watch<FFAppState>();
 
-    return GestureDetector(
-      onTap: () => _model.unfocusNode.canRequestFocus
-          ? FocusScope.of(context).requestFocus(_model.unfocusNode)
-          : FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        key: scaffoldKey,
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          top: true,
-          child: Align(
-            alignment: const AlignmentDirectional(0.00, 0.00),
-            child: Text(
-              'T',
-              style: FlutterFlowTheme.of(context).headlineLarge.override(
-                    fontFamily: 'Outfit',
-                    color: FlutterFlowTheme.of(context).primary,
-                    fontSize: 90.0,
-                  ),
+    return StreamBuilder<List<TelkesRecord>>(
+      stream: queryTelkesRecord(
+        singleRecord: true,
+      ),
+      builder: (context, snapshot) {
+        // Customize what your widget looks like when it's loading.
+        if (!snapshot.hasData) {
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: SizedBox(
+                width: 50.0,
+                height: 50.0,
+                child: SpinKitChasingDots(
+                  color: FlutterFlowTheme.of(context).primary,
+                  size: 50.0,
+                ),
+              ),
+            ),
+          );
+        }
+        List<TelkesRecord> homePageTelkesRecordList = snapshot.data!;
+        final homePageTelkesRecord = homePageTelkesRecordList.isNotEmpty
+            ? homePageTelkesRecordList.first
+            : null;
+        return GestureDetector(
+          onTap: () => _model.unfocusNode.canRequestFocus
+              ? FocusScope.of(context).requestFocus(_model.unfocusNode)
+              : FocusScope.of(context).unfocus(),
+          child: Scaffold(
+            key: scaffoldKey,
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              top: true,
+              child: Align(
+                alignment: const AlignmentDirectional(0.00, 0.00),
+                child: Text(
+                  'T',
+                  style: FlutterFlowTheme.of(context).headlineLarge.override(
+                        fontFamily: 'Outfit',
+                        color: FlutterFlowTheme.of(context).primary,
+                        fontSize: 90.0,
+                      ),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

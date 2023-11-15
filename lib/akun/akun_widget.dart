@@ -211,10 +211,6 @@ class _AkunWidgetState extends State<AkunWidget> {
                     );
                   }
                   List<TelkesRecord> namaTelkesRecordList = snapshot.data!;
-                  // Return an empty Container when the item does not exist.
-                  if (snapshot.data!.isEmpty) {
-                    return Container();
-                  }
                   final namaTelkesRecord = namaTelkesRecordList.isNotEmpty
                       ? namaTelkesRecordList.first
                       : null;
@@ -342,10 +338,6 @@ class _AkunWidgetState extends State<AkunWidget> {
                     );
                   }
                   List<TelkesRecord> umurTelkesRecordList = snapshot.data!;
-                  // Return an empty Container when the item does not exist.
-                  if (snapshot.data!.isEmpty) {
-                    return Container();
-                  }
                   final umurTelkesRecord = umurTelkesRecordList.isNotEmpty
                       ? umurTelkesRecordList.first
                       : null;
@@ -423,10 +415,6 @@ class _AkunWidgetState extends State<AkunWidget> {
                     );
                   }
                   List<TelkesRecord> dropDownTelkesRecordList = snapshot.data!;
-                  // Return an empty Container when the item does not exist.
-                  if (snapshot.data!.isEmpty) {
-                    return Container();
-                  }
                   final dropDownTelkesRecord =
                       dropDownTelkesRecordList.isNotEmpty
                           ? dropDownTelkesRecordList.first
@@ -484,10 +472,6 @@ class _AkunWidgetState extends State<AkunWidget> {
                   }
                   List<TelkesRecord> beratbadanTelkesRecordList =
                       snapshot.data!;
-                  // Return an empty Container when the item does not exist.
-                  if (snapshot.data!.isEmpty) {
-                    return Container();
-                  }
                   final beratbadanTelkesRecord =
                       beratbadanTelkesRecordList.isNotEmpty
                           ? beratbadanTelkesRecordList.first

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 
 import '/backend/schema/util/firestore_util.dart';
-import '/backend/schema/util/schema_util.dart';
 
 import 'index.dart';
 
@@ -49,11 +48,6 @@ class TelkesRecord extends FirestoreRecord {
   String? _photoUrl;
   String get photoUrl => _photoUrl ?? '';
   bool hasPhotoUrl() => _photoUrl != null;
-
-  // "uid" field.
-  String? _uid;
-  String get uid => _uid ?? '';
-  bool hasUid() => _uid != null;
 
   // "created_time" field.
   DateTime? _createdTime;
@@ -120,6 +114,31 @@ class TelkesRecord extends FirestoreRecord {
   DateTime? get time => _time;
   bool hasTime() => _time != null;
 
+  // "List" field.
+  List<ListsuhuStruct>? _list;
+  List<ListsuhuStruct> get list => _list ?? const [];
+  bool hasList() => _list != null;
+
+  // "uid" field.
+  String? _uid;
+  String get uid => _uid ?? '';
+  bool hasUid() => _uid != null;
+
+  // "Listdetak" field.
+  List<ListdetakStruct>? _listdetak;
+  List<ListdetakStruct> get listdetak => _listdetak ?? const [];
+  bool hasListdetak() => _listdetak != null;
+
+  // "Listkadar" field.
+  List<ListkadarStruct>? _listkadar;
+  List<ListkadarStruct> get listkadar => _listkadar ?? const [];
+  bool hasListkadar() => _listkadar != null;
+
+  // "Listdarah" field.
+  List<ListdarahStruct>? _listdarah;
+  List<ListdarahStruct> get listdarah => _listdarah ?? const [];
+  bool hasListdarah() => _listdarah != null;
+
   void _initializeFields() {
     _displayName = snapshotData['display_name'] as String?;
     _baterai = castToType<int>(snapshotData['Baterai']);
@@ -128,7 +147,6 @@ class TelkesRecord extends FirestoreRecord {
     _berat = castToType<int>(snapshotData['Berat']);
     _email = snapshotData['email'] as String?;
     _photoUrl = snapshotData['photo_url'] as String?;
-    _uid = snapshotData['uid'] as String?;
     _createdTime = snapshotData['created_time'] as DateTime?;
     _phoneNumber = snapshotData['phone_number'] as String?;
     _suhu = castToType<int>(snapshotData['Suhu']);
@@ -142,6 +160,23 @@ class TelkesRecord extends FirestoreRecord {
     _statusTensi = snapshotData['Status_tensi'] as String?;
     _mode = snapshotData['Mode'] as String?;
     _time = snapshotData['time'] as DateTime?;
+    _list = getStructList(
+      snapshotData['List'],
+      ListsuhuStruct.fromMap,
+    );
+    _uid = snapshotData['uid'] as String?;
+    _listdetak = getStructList(
+      snapshotData['Listdetak'],
+      ListdetakStruct.fromMap,
+    );
+    _listkadar = getStructList(
+      snapshotData['Listkadar'],
+      ListkadarStruct.fromMap,
+    );
+    _listdarah = getStructList(
+      snapshotData['Listdarah'],
+      ListdarahStruct.fromMap,
+    );
   }
 
   static CollectionReference get collection =>
@@ -185,7 +220,6 @@ Map<String, dynamic> createTelkesRecordData({
   int? berat,
   String? email,
   String? photoUrl,
-  String? uid,
   DateTime? createdTime,
   String? phoneNumber,
   int? suhu,
@@ -199,6 +233,7 @@ Map<String, dynamic> createTelkesRecordData({
   String? statusTensi,
   String? mode,
   DateTime? time,
+  String? uid,
 }) {
   final firestoreData = mapToFirestore(
     <String, dynamic>{
@@ -209,7 +244,6 @@ Map<String, dynamic> createTelkesRecordData({
       'Berat': berat,
       'email': email,
       'photo_url': photoUrl,
-      'uid': uid,
       'created_time': createdTime,
       'phone_number': phoneNumber,
       'Suhu': suhu,
@@ -223,6 +257,7 @@ Map<String, dynamic> createTelkesRecordData({
       'Status_tensi': statusTensi,
       'Mode': mode,
       'time': time,
+      'uid': uid,
     }.withoutNulls,
   );
 
@@ -234,6 +269,7 @@ class TelkesRecordDocumentEquality implements Equality<TelkesRecord> {
 
   @override
   bool equals(TelkesRecord? e1, TelkesRecord? e2) {
+    const listEquality = ListEquality();
     return e1?.displayName == e2?.displayName &&
         e1?.baterai == e2?.baterai &&
         e1?.umur == e2?.umur &&
@@ -241,7 +277,6 @@ class TelkesRecordDocumentEquality implements Equality<TelkesRecord> {
         e1?.berat == e2?.berat &&
         e1?.email == e2?.email &&
         e1?.photoUrl == e2?.photoUrl &&
-        e1?.uid == e2?.uid &&
         e1?.createdTime == e2?.createdTime &&
         e1?.phoneNumber == e2?.phoneNumber &&
         e1?.suhu == e2?.suhu &&
@@ -254,7 +289,12 @@ class TelkesRecordDocumentEquality implements Equality<TelkesRecord> {
         e1?.statusKadarOksigen == e2?.statusKadarOksigen &&
         e1?.statusTensi == e2?.statusTensi &&
         e1?.mode == e2?.mode &&
-        e1?.time == e2?.time;
+        e1?.time == e2?.time &&
+        listEquality.equals(e1?.list, e2?.list) &&
+        e1?.uid == e2?.uid &&
+        listEquality.equals(e1?.listdetak, e2?.listdetak) &&
+        listEquality.equals(e1?.listkadar, e2?.listkadar) &&
+        listEquality.equals(e1?.listdarah, e2?.listdarah);
   }
 
   @override
@@ -266,7 +306,6 @@ class TelkesRecordDocumentEquality implements Equality<TelkesRecord> {
         e?.berat,
         e?.email,
         e?.photoUrl,
-        e?.uid,
         e?.createdTime,
         e?.phoneNumber,
         e?.suhu,
@@ -279,7 +318,12 @@ class TelkesRecordDocumentEquality implements Equality<TelkesRecord> {
         e?.statusKadarOksigen,
         e?.statusTensi,
         e?.mode,
-        e?.time
+        e?.time,
+        e?.list,
+        e?.uid,
+        e?.listdetak,
+        e?.listkadar,
+        e?.listdarah
       ]);
 
   @override
