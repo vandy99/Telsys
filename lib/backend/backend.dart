@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../auth/firebase_auth/auth_util.dart';
 
+import '../flutter_flow/flutter_flow_util.dart';
 import 'schema/util/firestore_util.dart';
 
 import 'schema/telkes_record.dart';
-import 'schema/suhu_record.dart';
 
 export 'dart:async' show StreamSubscription;
 export 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,7 +14,6 @@ export 'schema/util/firestore_util.dart';
 export 'schema/util/schema_util.dart';
 
 export 'schema/telkes_record.dart';
-export 'schema/suhu_record.dart';
 
 /// Functions to query TelkesRecords (as a Stream and as a Future).
 Future<int> queryTelkesRecordCount({
@@ -46,43 +47,6 @@ Future<List<TelkesRecord>> queryTelkesRecordOnce({
     queryCollectionOnce(
       TelkesRecord.collection,
       TelkesRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      limit: limit,
-      singleRecord: singleRecord,
-    );
-
-/// Functions to query SuhuRecords (as a Stream and as a Future).
-Future<int> querySuhuRecordCount({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-}) =>
-    queryCollectionCount(
-      SuhuRecord.collection,
-      queryBuilder: queryBuilder,
-      limit: limit,
-    );
-
-Stream<List<SuhuRecord>> querySuhuRecord({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
-    queryCollection(
-      SuhuRecord.collection,
-      SuhuRecord.fromSnapshot,
-      queryBuilder: queryBuilder,
-      limit: limit,
-      singleRecord: singleRecord,
-    );
-
-Future<List<SuhuRecord>> querySuhuRecordOnce({
-  Query Function(Query)? queryBuilder,
-  int limit = -1,
-  bool singleRecord = false,
-}) =>
-    queryCollectionOnce(
-      SuhuRecord.collection,
-      SuhuRecord.fromSnapshot,
       queryBuilder: queryBuilder,
       limit: limit,
       singleRecord: singleRecord,
@@ -212,4 +176,34 @@ Future<FFFirestorePage<T>> queryCollectionPage<T>(
   final dataStream = docSnapshotStream?.map(getDocs);
   final nextPageToken = docSnapshot.docs.isEmpty ? null : docSnapshot.docs.last;
   return FFFirestorePage(data, dataStream, nextPageToken);
+}
+
+// Creates a Firestore document representing the logged in user if it doesn't yet exist
+Future maybeCreateUser(User user) async {
+  final userRecord = TelkesRecord.collection.doc(user.uid);
+  final userExists = await userRecord.get().then((u) => u.exists);
+  if (userExists) {
+    currentUserDocument = await TelkesRecord.getDocumentOnce(userRecord);
+    return;
+  }
+
+  final userData = createTelkesRecordData(
+    email: user.email ??
+        FirebaseAuth.instance.currentUser?.email ??
+        user.providerData.firstOrNull?.email,
+    displayName:
+        user.displayName ?? FirebaseAuth.instance.currentUser?.displayName,
+    photoUrl: user.photoURL,
+    uid: user.uid,
+    phoneNumber: user.phoneNumber,
+    createdTime: getCurrentTimestamp,
+  );
+
+  await userRecord.set(userData);
+  currentUserDocument = TelkesRecord.getDocumentFromData(userData, userRecord);
+}
+
+Future updateUserDocument({String? email}) async {
+  await currentUserDocument?.reference
+      .update(createTelkesRecordData(email: email));
 }

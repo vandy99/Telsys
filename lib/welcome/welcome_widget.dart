@@ -265,9 +265,12 @@ class _WelcomeWidgetState extends State<WelcomeWidget>
                       decoration: BoxDecoration(
                         color: FlutterFlowTheme.of(context).secondaryBackground,
                       ),
-                      child: MasonryGridView.count(
+                      child: MasonryGridView.builder(
                         physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 3,
+                        gridDelegate:
+                            const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                        ),
                         crossAxisSpacing: 10.0,
                         mainAxisSpacing: 10.0,
                         itemCount: 11,

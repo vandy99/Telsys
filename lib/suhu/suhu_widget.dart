@@ -1,3 +1,4 @@
+import '/auth/firebase_auth/auth_util.dart';
 import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_calendar.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
@@ -5,7 +6,6 @@ import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -14,12 +14,7 @@ import 'suhu_model.dart';
 export 'suhu_model.dart';
 
 class SuhuWidget extends StatefulWidget {
-  const SuhuWidget({
-    super.key,
-    this.te,
-  });
-
-  final String? te;
+  const SuhuWidget({super.key});
 
   @override
   _SuhuWidgetState createState() => _SuhuWidgetState();
@@ -34,11 +29,6 @@ class _SuhuWidgetState extends State<SuhuWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => SuhuModel());
-
-    // On page load action.
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      setState(() {});
-    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
   }
@@ -63,8 +53,8 @@ class _SuhuWidgetState extends State<SuhuWidget> {
 
     context.watch<FFAppState>();
 
-    return StreamBuilder<List<TelkesRecord>>(
-      stream: queryTelkesRecord(),
+    return StreamBuilder<TelkesRecord>(
+      stream: TelkesRecord.getDocument(currentUserReference!),
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
         if (!snapshot.hasData) {
@@ -82,7 +72,7 @@ class _SuhuWidgetState extends State<SuhuWidget> {
             ),
           );
         }
-        List<TelkesRecord> suhuTelkesRecordList = snapshot.data!;
+        final suhuTelkesRecord = snapshot.data!;
         return GestureDetector(
           onTap: () => _model.unfocusNode.canRequestFocus
               ? FocusScope.of(context).requestFocus(_model.unfocusNode)
@@ -90,10 +80,8 @@ class _SuhuWidgetState extends State<SuhuWidget> {
           child: Scaffold(
             key: scaffoldKey,
             backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
-            floatingActionButton: StreamBuilder<List<TelkesRecord>>(
-              stream: queryTelkesRecord(
-                singleRecord: true,
-              ),
+            floatingActionButton: StreamBuilder<TelkesRecord>(
+              stream: TelkesRecord.getDocument(currentUserReference!),
               builder: (context, snapshot) {
                 // Customize what your widget looks like when it's loading.
                 if (!snapshot.hasData) {
@@ -108,15 +96,10 @@ class _SuhuWidgetState extends State<SuhuWidget> {
                     ),
                   );
                 }
-                List<TelkesRecord> floatingActionButtonTelkesRecordList =
-                    snapshot.data!;
-                final floatingActionButtonTelkesRecord =
-                    floatingActionButtonTelkesRecordList.isNotEmpty
-                        ? floatingActionButtonTelkesRecordList.first
-                        : null;
+                final floatingActionButtonTelkesRecord = snapshot.data!;
                 return FloatingActionButton(
                   onPressed: () async {
-                    await floatingActionButtonTelkesRecord!.reference.update({
+                    await floatingActionButtonTelkesRecord.reference.update({
                       ...mapToFirestore(
                         {
                           'List': FieldValue.arrayUnion([
@@ -196,10 +179,9 @@ class _SuhuWidgetState extends State<SuhuWidget> {
                             child: Padding(
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   0.0, 24.0, 0.0, 24.0),
-                              child: StreamBuilder<List<TelkesRecord>>(
-                                stream: queryTelkesRecord(
-                                  singleRecord: true,
-                                ),
+                              child: StreamBuilder<TelkesRecord>(
+                                stream: TelkesRecord.getDocument(
+                                    currentUserReference!),
                                 builder: (context, snapshot) {
                                   // Customize what your widget looks like when it's loading.
                                   if (!snapshot.hasData) {
@@ -215,20 +197,11 @@ class _SuhuWidgetState extends State<SuhuWidget> {
                                       ),
                                     );
                                   }
-                                  List<TelkesRecord>
-                                      progressBarTelkesRecordList =
-                                      snapshot.data!;
-                                  // Return an empty Container when the item does not exist.
-                                  if (snapshot.data!.isEmpty) {
-                                    return Container();
-                                  }
                                   final progressBarTelkesRecord =
-                                      progressBarTelkesRecordList.isNotEmpty
-                                          ? progressBarTelkesRecordList.first
-                                          : null;
+                                      snapshot.data!;
                                   return CircularPercentIndicator(
                                     percent: valueOrDefault<double>(
-                                      functions.suhu(progressBarTelkesRecord!
+                                      functions.suhu(progressBarTelkesRecord
                                           .suhu
                                           .toDouble()),
                                       0.0,
@@ -288,10 +261,8 @@ class _SuhuWidgetState extends State<SuhuWidget> {
                   ),
                   Align(
                     alignment: const AlignmentDirectional(0.00, 0.00),
-                    child: StreamBuilder<List<TelkesRecord>>(
-                      stream: queryTelkesRecord(
-                        singleRecord: true,
-                      ),
+                    child: StreamBuilder<TelkesRecord>(
+                      stream: TelkesRecord.getDocument(currentUserReference!),
                       builder: (context, snapshot) {
                         // Customize what your widget looks like when it's loading.
                         if (!snapshot.hasData) {
@@ -306,29 +277,20 @@ class _SuhuWidgetState extends State<SuhuWidget> {
                             ),
                           );
                         }
-                        List<TelkesRecord> containerTelkesRecordList =
-                            snapshot.data!;
-                        // Return an empty Container when the item does not exist.
-                        if (snapshot.data!.isEmpty) {
-                          return Container();
-                        }
-                        final containerTelkesRecord =
-                            containerTelkesRecordList.isNotEmpty
-                                ? containerTelkesRecordList.first
-                                : null;
+                        final containerTelkesRecord = snapshot.data!;
                         return Container(
                           width: 360.0,
                           height: 50.0,
                           decoration: BoxDecoration(
                             color: valueOrDefault<Color>(
                               () {
-                                if (containerTelkesRecord?.statusSuhu ==
+                                if (containerTelkesRecord.statusSuhu ==
                                     'Tinggi') {
                                   return const Color(0xFFFF0000);
-                                } else if (containerTelkesRecord?.statusSuhu ==
+                                } else if (containerTelkesRecord.statusSuhu ==
                                     'Normal') {
                                   return FlutterFlowTheme.of(context).primary;
-                                } else if (containerTelkesRecord?.statusSuhu ==
+                                } else if (containerTelkesRecord.statusSuhu ==
                                     'Rendah') {
                                   return FlutterFlowTheme.of(context).warning;
                                 } else {
@@ -366,10 +328,9 @@ class _SuhuWidgetState extends State<SuhuWidget> {
                                         ),
                                   ),
                                 ),
-                                StreamBuilder<List<TelkesRecord>>(
-                                  stream: queryTelkesRecord(
-                                    singleRecord: true,
-                                  ),
+                                StreamBuilder<TelkesRecord>(
+                                  stream: TelkesRecord.getDocument(
+                                      currentUserReference!),
                                   builder: (context, snapshot) {
                                     // Customize what your widget looks like when it's loading.
                                     if (!snapshot.hasData) {
@@ -385,19 +346,10 @@ class _SuhuWidgetState extends State<SuhuWidget> {
                                         ),
                                       );
                                     }
-                                    List<TelkesRecord> textTelkesRecordList =
-                                        snapshot.data!;
-                                    // Return an empty Container when the item does not exist.
-                                    if (snapshot.data!.isEmpty) {
-                                      return Container();
-                                    }
-                                    final textTelkesRecord =
-                                        textTelkesRecordList.isNotEmpty
-                                            ? textTelkesRecordList.first
-                                            : null;
+                                    final textTelkesRecord = snapshot.data!;
                                     return Text(
                                       valueOrDefault<String>(
-                                        textTelkesRecord?.statusSuhu,
+                                        textTelkesRecord.statusSuhu,
                                         'Normal',
                                       ),
                                       textAlign: TextAlign.center,
@@ -490,10 +442,9 @@ class _SuhuWidgetState extends State<SuhuWidget> {
                               child: Padding(
                                 padding: const EdgeInsetsDirectional.fromSTEB(
                                     0.0, 10.0, 0.0, 0.0),
-                                child: FutureBuilder<List<TelkesRecord>>(
-                                  future: queryTelkesRecordOnce(
-                                    singleRecord: true,
-                                  ),
+                                child: StreamBuilder<TelkesRecord>(
+                                  stream: TelkesRecord.getDocument(
+                                      currentUserReference!),
                                   builder: (context, snapshot) {
                                     // Customize what your widget looks like when it's loading.
                                     if (!snapshot.hasData) {
@@ -509,17 +460,7 @@ class _SuhuWidgetState extends State<SuhuWidget> {
                                         ),
                                       );
                                     }
-                                    List<TelkesRecord>
-                                        listViewTelkesRecordList =
-                                        snapshot.data!;
-                                    // Return an empty Container when the item does not exist.
-                                    if (snapshot.data!.isEmpty) {
-                                      return Container();
-                                    }
-                                    final listViewTelkesRecord =
-                                        listViewTelkesRecordList.isNotEmpty
-                                            ? listViewTelkesRecordList.first
-                                            : null;
+                                    final listViewTelkesRecord = snapshot.data!;
                                     return ListView(
                                       padding: EdgeInsets.zero,
                                       shrinkWrap: true,
@@ -540,16 +481,13 @@ class _SuhuWidgetState extends State<SuhuWidget> {
                                             child: Builder(
                                               builder: (context) {
                                                 final list =
-                                                    listViewTelkesRecord?.list
-                                                            .where((e) =>
-                                                                e.date ==
-                                                                FFAppState()
-                                                                    .Waktu)
-                                                            .toList()
-                                                            .map((e) => e.suhu)
-                                                            .toList()
-                                                            .toList() ??
-                                                        [];
+                                                    listViewTelkesRecord.list
+                                                        .where((e) =>
+                                                            e.date ==
+                                                            FFAppState().Waktu)
+                                                        .toList()
+                                                        .map((e) => e.suhu)
+                                                        .toList();
                                                 return SingleChildScrollView(
                                                   child: Column(
                                                     mainAxisSize:

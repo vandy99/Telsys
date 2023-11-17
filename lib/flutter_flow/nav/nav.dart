@@ -181,9 +181,7 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: 'Suhu',
           path: '/suhu',
-          builder: (context, params) => SuhuWidget(
-            te: params.getParam('te', ParamType.String),
-          ),
+          builder: (context, params) => const SuhuWidget(),
         ),
         FFRoute(
           name: 'Detak',

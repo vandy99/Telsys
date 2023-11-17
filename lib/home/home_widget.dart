@@ -301,8 +301,11 @@ class _HomeWidgetState extends State<HomeWidget> {
                     child: Padding(
                       padding:
                           const EdgeInsetsDirectional.fromSTEB(20.0, 20.0, 20.0, 0.0),
-                      child: MasonryGridView.count(
-                        crossAxisCount: 2,
+                      child: MasonryGridView.builder(
+                        gridDelegate:
+                            const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                        ),
                         crossAxisSpacing: 15.0,
                         mainAxisSpacing: 15.0,
                         itemCount: 4,
@@ -391,14 +394,45 @@ class _HomeWidgetState extends State<HomeWidget> {
                                               padding: const EdgeInsetsDirectional
                                                   .fromSTEB(
                                                       0.0, 10.0, 0.0, 0.0),
-                                              child: Text(
-                                                valueOrDefault<String>(
-                                                  homeTelkesRecord.suhu
-                                                      .toString(),
-                                                  '0',
+                                              child: StreamBuilder<
+                                                  List<TelkesRecord>>(
+                                                stream: queryTelkesRecord(
+                                                  singleRecord: true,
                                                 ),
-                                                style:
-                                                    FlutterFlowTheme.of(context)
+                                                builder: (context, snapshot) {
+                                                  // Customize what your widget looks like when it's loading.
+                                                  if (!snapshot.hasData) {
+                                                    return Center(
+                                                      child: SizedBox(
+                                                        width: 50.0,
+                                                        height: 50.0,
+                                                        child:
+                                                            SpinKitChasingDots(
+                                                          color: FlutterFlowTheme
+                                                                  .of(context)
+                                                              .primary,
+                                                          size: 50.0,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                  List<TelkesRecord>
+                                                      textTelkesRecordList =
+                                                      snapshot.data!;
+                                                  final textTelkesRecord =
+                                                      textTelkesRecordList
+                                                              .isNotEmpty
+                                                          ? textTelkesRecordList
+                                                              .first
+                                                          : null;
+                                                  return Text(
+                                                    valueOrDefault<String>(
+                                                      homeTelkesRecord.suhu
+                                                          .toString(),
+                                                      '0',
+                                                    ),
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
                                                         .bodyMedium
                                                         .override(
                                                           fontFamily:
@@ -407,6 +441,8 @@ class _HomeWidgetState extends State<HomeWidget> {
                                                           fontWeight:
                                                               FontWeight.w600,
                                                         ),
+                                                  );
+                                                },
                                               ),
                                             ),
                                             Align(

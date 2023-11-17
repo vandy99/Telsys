@@ -1,4 +1,5 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/backend.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
@@ -427,6 +428,15 @@ class _DaftarWidgetState extends State<DaftarWidget> {
                                         if (user == null) {
                                           return;
                                         }
+
+                                        await TelkesRecord.collection
+                                            .doc(user.uid)
+                                            .update(createTelkesRecordData(
+                                              displayName:
+                                                  _model.namaController.text,
+                                              email: _model
+                                                  .emailAddressController.text,
+                                            ));
 
                                         context.goNamedAuth(
                                             'Home', context.mounted);
